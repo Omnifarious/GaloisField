@@ -38,30 +38,92 @@ def gfMeta(prime, basis):
             self.val_ = val
             super().__init__()
 
+        def _compat_types(self, other):
+            return isinstance(other, _gfBase) \
+                and (other.prime_ == self.prime_) \
+                and (other.basis_ == self.basis_)
+
         def __eq__(self, other):
-            if not isinstance(other, _gfBase):
-                return NotImplemented
-            elif other.prime_ != self.prime_:
-                return NotImplemented
-            elif other.basis_ != self.basis_:
-                return NotImplemented
-            else:
-                return self.val_ == other.val_
+            return (self.val_ == other.val_) \
+                if self._compat_types(other) else NotImplemented
+
+        def __neq__(self, other):
+            return (self.val_ != other.val_) \
+                if self._compat_types(other) else NotImplemented
 
         def __lt__(self, other):
-            if not isinstance(other, _gfBase):
-                return NotImplemented
-            elif other.prime_ != self.prime_:
-                return NotImplemented
-            elif other.basis_ != self.basis_:
-                return NotImplemented
-            else:
-                return self.val_ < other.val_
+            return (self.val_ < other.val_) \
+                if self._compat_types(other) else NotImplemented
 
         def __repr__(self):
             return "<%s.%s(%d, %r)(%r)>" % \
                 (gfMeta.__module__, gfMeta.__qualname__,
                  prime, basis, self.val_)
+
+        def __str__(self):
+            return "[: " + ' '.join(str(v) for v in self.val_) + " :]"
+
+        def __add__(self, other):
+            if not self._compat_types(other):
+                return NotImplemented
+            return self.__class__((((x + y) % prime) for (x, y) in \
+                                      zip(self.val_, other.val_)))
+
+        def __sub__(self, other):
+            if not self._compat_types(other):
+                return NotImplemented
+            return self.__class__((((x + (prime - y)) % prime) for (x, y) in \
+                                      zip(self.val_, other.val_)))
+
+        def _intmul(self, other):
+            if other == 0:
+                return self.__class__([0] * size)
+            elif other < 0:
+                return self.__class__([0] * size) - self._intmul(-other)
+            elif other & 1:
+                return self + self._intmul(other - 1)
+            else:
+                tmp = self._intmul(other // 2)
+                return tmp + tmp
+
+        def __mul__(self, other):
+            if not self._compat_types(other):
+                try:
+                    other = int(other)
+                except:
+                    pass
+                if isinstance(other, int):
+                    return self._intmul(other)
+                else:
+                    return NotImplemented
+            tmpval = [0] * (size * 2)
+            for i, factor in enumerate(reversed(other.val_)):
+                for j, term in enumerate(reversed(self.val_)):
+                    tmpval[i + j] += factor * term
+            tmpval = tuple((term % prime) for term in tmpval)
+            tmpval = tuple(reversed(tmpval))
+            shiftval = tuple((prime - term) % prime for term in basis) \
+                + ((0,) * (size - 1))
+            while len(tmpval) > size:
+#                print("%r %r" % (tmpval, shiftval))
+                while tmpval[0] != 0:
+                    tmpval = tuple((x + y) % prime \
+                                       for x, y in zip(tmpval, shiftval))
+                tmpval = tmpval[1:]
+                shiftval = shiftval[:-1]
+            return self.__class__(tmpval)
+
+        def __rmul__(self, other):
+            if not self._compat_types(other):
+                try:
+                    other = int(other)
+                except:
+                    pass
+                if isinstance(other, int):
+                    return self._intmul(other)
+                else:
+                    return NotImplemented
+            return NotImplemented
 
     _fieldTypes[(prime, basis)] = gf
     return gf
