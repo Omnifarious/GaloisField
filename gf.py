@@ -80,8 +80,9 @@ def gfMeta(prime_, basis_):
         def __sub__(self, other):
             if not self._compat_types(other):
                 return NotImplemented
-            return self.__class__((((x + (prime_ - y)) % prime_) for (x, y) in \
-                                      zip(self.val_, other.val_)))
+            return self.__class__((((x + (prime_ - y)) % prime_) \
+                                       for (x, y) in \
+                                       zip(self.val_, other.val_)))
 
         def _intmul(self, other):
             if other == 0:
