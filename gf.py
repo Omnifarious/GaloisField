@@ -5,43 +5,51 @@ class _gfBase(object):
 
 _fieldTypes = {}
 
-def gfMeta(prime, basis):
+def gfMeta(prime_, basis_):
     global _fieldTypes
-    prime = int(prime)
-    basis = tuple((int(p) for p in basis))
-    tmpclass = _fieldTypes.get((prime, basis))
+    prime_ = int(prime_)
+    basis_ = tuple((int(p) for p in basis_))
+    tmpclass = _fieldTypes.get((prime_, basis_))
     if tmpclass is not None:
         return tmpclass
     del tmpclass
 
-    for p in basis:
-        if (p < 0) or (p >= prime):
+    for p in basis_:
+        if (p < 0) or (p >= prime_):
             raise ValueError("Each element of basis must be >= 0 "
                              "and < prime.")
-    if basis[0] != 1:
+    if basis_[0] != 1:
         raise ValueError("First element of basis must be 1")
-    size = len(basis) - 1
+    size = len(basis_) - 1
 
     @_total_ordering
     class gf(_gfBase):
         __slots__ = ('val_')
-        prime_ = prime
-        basis_ = basis
+
+        @property
+        def prime(self):
+            "The prime number field for each element of the Galois Field."
+            return prime_
+
+        @property
+        def basis(self):
+            "The coefficients of the prime polynomial defining the field."
+            return basis_
 
         def __init__(self, val):
             val = tuple((int(v) for v in val))
             if len(val) != size:
                 raise ValueError("val must be sequence of size size of ints")
-            if any((v < 0) or (v >= prime) for v in val):
+            if any((v < 0) or (v >= prime_) for v in val):
                 raise ValueError("Each element of val must be >= 0 and < %d"
-                                 % (prime,))
+                                 % (prime_,))
             self.val_ = val
             super().__init__()
 
         def _compat_types(self, other):
             return isinstance(other, _gfBase) \
-                and (other.prime_ == self.prime_) \
-                and (other.basis_ == self.basis_)
+                and (other.prime == prime_) \
+                and (other.basis == basis_)
 
         def __eq__(self, other):
             return (self.val_ == other.val_) \
@@ -58,7 +66,7 @@ def gfMeta(prime, basis):
         def __repr__(self):
             return "<%s.%s(%d, %r)(%r)>" % \
                 (gfMeta.__module__, gfMeta.__qualname__,
-                 prime, basis, self.val_)
+                 prime_, basis_, self.val_)
 
         def __str__(self):
             return "[: " + ' '.join(str(v) for v in self.val_) + " :]"
@@ -66,13 +74,13 @@ def gfMeta(prime, basis):
         def __add__(self, other):
             if not self._compat_types(other):
                 return NotImplemented
-            return self.__class__((((x + y) % prime) for (x, y) in \
+            return self.__class__((((x + y) % prime_) for (x, y) in \
                                       zip(self.val_, other.val_)))
 
         def __sub__(self, other):
             if not self._compat_types(other):
                 return NotImplemented
-            return self.__class__((((x + (prime - y)) % prime) for (x, y) in \
+            return self.__class__((((x + (prime_ - y)) % prime_) for (x, y) in \
                                       zip(self.val_, other.val_)))
 
         def _intmul(self, other):
@@ -100,14 +108,13 @@ def gfMeta(prime, basis):
             for i, factor in enumerate(reversed(other.val_)):
                 for j, term in enumerate(reversed(self.val_)):
                     tmpval[i + j] += factor * term
-            tmpval = tuple((term % prime) for term in tmpval)
+            tmpval = tuple((term % prime_) for term in tmpval)
             tmpval = tuple(reversed(tmpval))
-            shiftval = tuple((prime - term) % prime for term in basis) \
+            shiftval = tuple((prime_ - term) % prime_ for term in basis_) \
                 + ((0,) * (size - 1))
             while len(tmpval) > size:
-#                print("%r %r" % (tmpval, shiftval))
                 while tmpval[0] != 0:
-                    tmpval = tuple((x + y) % prime \
+                    tmpval = tuple((x + y) % prime_ \
                                        for x, y in zip(tmpval, shiftval))
                 tmpval = tmpval[1:]
                 shiftval = shiftval[:-1]
@@ -125,5 +132,8 @@ def gfMeta(prime, basis):
                     return NotImplemented
             return NotImplemented
 
-    _fieldTypes[(prime, basis)] = gf
+        def __hash__(self):
+            return hash((prime_, basis_, self.val_))
+
+    _fieldTypes[(prime_, basis_)] = gf
     return gf
