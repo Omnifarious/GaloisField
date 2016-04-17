@@ -137,3 +137,14 @@ def gfMeta(prime_, basis_):
 
     _fieldTypes[(prime_, basis_)] = gf
     return gf
+
+def generate_field(start):
+    one = start.__class__((0,) * (len(start.basis) - 2) + (1,))
+    cur = start
+    vals = set((one,))
+    field = [one]
+    while cur not in vals:
+        field.append(cur)
+        vals.add(cur)
+        cur = cur * start
+    return field
