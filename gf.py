@@ -133,6 +133,25 @@ def gfMeta(prime_, basis_):
                     return NotImplemented
             return NotImplemented
 
+        def __pow__(self, other):
+            try:
+                other = int(other)
+            except TypeError:
+                return NotImplemented
+            if other < 0:
+                raise ValueError("Negative powers are not supported.")
+            start = self.__class__((0,) * (size - 1) + (1,))
+            base = self
+            while other > 0:
+                if other & 1:
+                    start = start * base
+                base = base * base
+                other >>= 1
+            return start
+
+        def __bool__(self):
+            return any(x != 0 for x in self.val_)
+
         def __hash__(self):
             return hash((prime_, basis_, self.val_))
 
@@ -140,10 +159,9 @@ def gfMeta(prime_, basis_):
     return gf
 
 def generate_field(start):
-    one = start.__class__((0,) * (len(start.basis) - 2) + (1,))
-    cur = start
-    vals = set((one,))
-    field = [one]
+    cur = start ** 0
+    vals = set()
+    field = []
     while cur not in vals:
         field.append(cur)
         vals.add(cur)
