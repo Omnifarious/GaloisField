@@ -36,6 +36,11 @@ def gfMeta(prime_, basis_):
             "The coefficients of the prime polynomial defining the field."
             return basis_
 
+        @property
+        def coefficients(self):
+            "The coefficients of the polynomial for this field element."
+            return self.val_
+
         def __init__(self, val):
             val = tuple((int(v) for v in val))
             if len(val) != size_:
