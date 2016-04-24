@@ -109,16 +109,17 @@ def gfMeta(prime_, basis_):
             for i, factor in enumerate(reversed(other.val_)):
                 for j, term in enumerate(reversed(self.val_)):
                     tmpval[i + j] += factor * term
-            tmpval = tuple((term % prime_) for term in tmpval)
-            tmpval = tuple(reversed(tmpval))
-            shiftval = tuple((prime_ - term) % prime_ for term in basis_) \
-                + ((0,) * (size_ - 1))
+            for i in range(0, len(tmpval)):
+                tmpval[i] %= prime_
             while len(tmpval) > size_:
-                while tmpval[0] != 0:
-                    tmpval = tuple((x + y) % prime_ \
-                                       for x, y in zip(tmpval, shiftval))
-                tmpval = tmpval[1:]
-                shiftval = shiftval[:-1]
+                multiplier = tmpval[-1]
+                if multiplier != 0:
+                    for i, factor in enumerate(basis_):
+                        tmpval[-(i + 1)] -= factor * multiplier
+                        tmpval[-(i + 1)] %= prime_
+                assert tmpval[-1] == 0;
+                tmpval.pop()
+            tmpval.reverse()
             return self.__class__(tmpval)
 
         def __rmul__(self, other):
