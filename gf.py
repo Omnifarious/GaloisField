@@ -20,7 +20,7 @@ def gfMeta(prime_, basis_):
                              "and < prime.")
     if basis_[0] != 1:
         raise ValueError("First element of basis must be 1")
-    size = len(basis_) - 1
+    size_ = len(basis_) - 1
 
     @_total_ordering
     class gf(_gfBase):
@@ -38,8 +38,8 @@ def gfMeta(prime_, basis_):
 
         def __init__(self, val):
             val = tuple((int(v) for v in val))
-            if len(val) != size:
-                raise ValueError("val must be sequence of size size of ints")
+            if len(val) != size_:
+                raise ValueError("val must be sequence of size size_ of ints")
             if any((v < 0) or (v >= prime_) for v in val):
                 raise ValueError("Each element of val must be >= 0 and < %d"
                                  % (prime_,))
@@ -86,9 +86,9 @@ def gfMeta(prime_, basis_):
 
         def _intmul(self, other):
             if other == 0:
-                return self.__class__([0] * size)
+                return self.__class__([0] * size_)
             elif other < 0:
-                return self.__class__([0] * size) - self._intmul(-other)
+                return self.__class__([0] * size_) - self._intmul(-other)
             elif other & 1:
                 return self + self._intmul(other - 1)
             else:
@@ -105,15 +105,15 @@ def gfMeta(prime_, basis_):
                     return self._intmul(other)
                 else:
                     return NotImplemented
-            tmpval = [0] * (size * 2)
+            tmpval = [0] * (size_ * 2)
             for i, factor in enumerate(reversed(other.val_)):
                 for j, term in enumerate(reversed(self.val_)):
                     tmpval[i + j] += factor * term
             tmpval = tuple((term % prime_) for term in tmpval)
             tmpval = tuple(reversed(tmpval))
             shiftval = tuple((prime_ - term) % prime_ for term in basis_) \
-                + ((0,) * (size - 1))
-            while len(tmpval) > size:
+                + ((0,) * (size_ - 1))
+            while len(tmpval) > size_:
                 while tmpval[0] != 0:
                     tmpval = tuple((x + y) % prime_ \
                                        for x, y in zip(tmpval, shiftval))
@@ -140,7 +140,7 @@ def gfMeta(prime_, basis_):
                 return NotImplemented
             if other < 0:
                 raise ValueError("Negative powers are not supported.")
-            start = self.__class__((0,) * (size - 1) + (1,))
+            start = self.__class__((0,) * (size_ - 1) + (1,))
             base = self
             while other > 0:
                 if other & 1:
