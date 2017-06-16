@@ -103,7 +103,7 @@ def polyadd(a, b):
     a[n]*x^n + a[n-1]*x^(n-1) + ... a[0].
 
     """
-    def add_ceof(x, y):
+    def add_coef(x, y):
         if x is None:
             return y
         elif y is None:
@@ -132,7 +132,7 @@ def polysub(a, b):
     constructor with no arguments.
 
     """
-    def sub_ceof(x, y):
+    def sub_coef(x, y):
         if x is None:
             return type(y)() - y
         elif y is None:
