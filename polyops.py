@@ -189,11 +189,12 @@ def lagrange_interp(points):
         else:
             return (next(iter(points))[1],)
     xzero = type(next(iter(points))[0])()
-    master_poly = reduce(polymul,
-                         ((xzero - x, 1) for x, y in points),
-                         (xone,))
-    xpolys = ((polydiv(master_poly, (xzero - x, xone))[0], x, y)
-              for x, y in points)
-    xpolys = (polyscalarmul(xp, y / evalpoly(xp, x))
-              for xp, x, y in xpolys)
+
+    def compute_xpoly(x, y):
+        xpoly = reduce(polymul, ((xzero - px, xone)
+                                 for px, py in enumerate(points)
+                                 if px != x))
+        return polyscalarmul(xpoly, y / evalpoly(xpoly, x))
+
+    xpolys = (compute_xpoly(x, y) for x, y in points)
     return normalized(reduce(polyadd, xpolys, ()))
