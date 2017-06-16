@@ -168,3 +168,32 @@ def evalpoly(a, x):
         result += a_coef * xpower
         xpower *= x
     return result
+
+def lagrange_interp(points):
+    from functools import reduce
+    there_is_no_one = object()
+
+    def determine_mult_ident_and_numpts(points):
+        numpts = 0
+        one = there_is_no_one
+        for x, y in points:
+            if (one is there_is_no_one) and (type(x)() != x):
+                one = x / x
+            numpts += 1
+        return (one, numpts)
+
+    (xone, numpts) = determine_mult_ident_and_numpts(points)
+    if xone is there_is_no_one:
+        if numpts > 1:
+            raise ValueError("Impossible to interpolate.")
+        else:
+            return (next(iter(points))[1],)
+    xzero = type(next(iter(points))[0])()
+    master_poly = reduce(polymul,
+                         ((xzero - x, 1) for x, y in points),
+                         (xone,))
+    xpolys = ((polydiv(master_poly, (xzero - x, xone))[0], x, y)
+              for x, y in points)
+    xpolys = (polyscalarmul(xp, y / evalpoly(xp, x))
+              for xp, x, y in xpolys)
+    return normalized(reduce(polyadd, xpolys, ()))
