@@ -192,7 +192,7 @@ def lagrange_interp(points):
 
     def compute_xpoly(x, y):
         xpoly = reduce(polymul, ((xzero - px, xone)
-                                 for px, py in enumerate(points)
+                                 for px, py in points
                                  if px != x))
         return polyscalarmul(xpoly, y / evalpoly(xpoly, x))
 
