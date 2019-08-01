@@ -1,4 +1,4 @@
-import polyops
+from . import polyops
 import fractions
 from functools import reduce
 

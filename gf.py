@@ -6,6 +6,16 @@ class _gfBase(object):
 _fieldTypes = {}
 
 def gfMeta(prime_, basis_):
+    """Use this to create a class representing a Galois extension field.
+
+    prime is the first argument and is the characteristic, Every
+    polynomial coefficient in the extension field will be a member of
+    Zprime (integers modulo prime)
+
+    basis is the irreducible polynomial that defines the extension
+    field. It's degree is one larger than the degree of any member of
+    the field.
+    """
     global _fieldTypes
     prime_ = int(prime_)
     basis_ = tuple((int(p) for p in basis_))
