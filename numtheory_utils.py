@@ -40,3 +40,17 @@ def extended_gcd(x, y):
 # (1 * 16 - 0 * 23) - 2 * (1 * 23 - 1 * 16) = 3 * 16 - 2 * 23 = 2
 # (1 * 23 - 1 * 16) - 3 * (3 * 16 - 2 * 23) = 7 * 23 - 10 * 16 = 1
 # 13 * 16 - 9 * 23 = 1
+
+
+def print_group_table(elements, op):
+    width = max(len(str(x)) for x in elements)
+    print(f'{" ":{width}} |', end='')
+    for a in elements:
+        print(f' {a:{width}} |', end='')
+    print()
+    for a in elements:
+        print(f'{a:{width}} |', end='')
+        for b in elements:
+            result = op(a, b)
+            print(f' {result:{width}} |', end='')
+        print()
