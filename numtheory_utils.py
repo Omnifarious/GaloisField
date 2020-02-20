@@ -54,3 +54,15 @@ def print_group_table(elements, op):
             result = op(a, b)
             print(f' {result:{width}} |', end='')
         print()
+
+
+def mult_inverses(a, b):
+    am, bm, g = extended_gcd(a, b)
+    if g == 0:
+        raise ValueError(f"{a} and {b} are not relatively prime.")
+    if am < 0:
+        am = b + am
+    if bm < 0:
+        bm = a + bm
+    return f"{a} * {am} % {b} == {a * am % b}"\
+        f"\n{b} * {bm} % {a} == {b * bm % a}"
