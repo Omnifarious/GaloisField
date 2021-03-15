@@ -1,4 +1,13 @@
 def extended_gcd(x, y):
+    """Return a tuple 't' with three elements such that:
+    t[0) * x + t[1] * y == t[2]
+
+    t[2] will be either 0 or 1. If it is zero, then x and y are not
+    relatively prime. If it is one, then they are.
+
+    This makes use of Euclid's algorithm for finding the GCD, but extends it
+    to keep track of the extra data returned in t[0] and t[1].
+    """
     sx = 1 if x > 0 else -1
     x = abs(x)
     sy = 1 if y > 0 else -1
@@ -54,3 +63,18 @@ def print_group_table(elements, op):
             result = op(a, b)
             print(f' {result:{width}} |', end='')
         print()
+
+
+def print_mult_inverses(a, b):
+    """Prints out the multiplicative inverse of a (mod b) and the multiplicative
+    inverse of b (mod a).
+    """
+    am, bm, g = extended_gcd(a, b)
+    if g == 0:
+        raise ValueError(f"{a} and {b} are not relatively prime.")
+    if am < 0:
+        am = b + am
+    if bm < 0:
+        bm = a + bm
+    print(f"{a} * {am} % {b} == {a * am % b}"\
+          f"\n{b} * {bm} % {a} == {b * bm % a}")
