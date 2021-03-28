@@ -1,4 +1,11 @@
-def extended_gcd(x, y):
+from collections.abc import Collection
+from typing import Any, Callable, TypeVar
+
+__all__ = [
+    'extended_gcd', 'print_group_table', 'mult_inverse', 'print_mult_inverses'
+]
+
+def extended_gcd(x: int, y: int):
     """Return a tuple 't' with three elements such that:
     t[0) * x + t[1] * y == t[2]
 
@@ -50,8 +57,11 @@ def extended_gcd(x, y):
 # (1 * 23 - 1 * 16) - 3 * (3 * 16 - 2 * 23) = 7 * 23 - 10 * 16 = 1
 # 13 * 16 - 9 * 23 = 1
 
-
-def print_group_table(elements, op):
+T = TypeVar('T')
+def print_group_table(
+        elements: Collection[T],
+        op: Callable[[T, T], T]
+):
     width = max(len(str(x)) for x in elements)
     print(f'{" ":{width}} |', end='')
     for a in elements:
@@ -65,7 +75,16 @@ def print_group_table(elements, op):
         print()
 
 
-def print_mult_inverses(a, b):
+def mult_inverse(a: int, b: int):
+    """If possible, return a number n such that a * n mod b == 1, otherwise
+    raise an exception."""
+    am, bm, g = extended_gcd(a, b)
+    if g == 0:
+        raise ValueError(f"{a} and {b} are not relatively prime.")
+    return am if am > 0 else b + am
+
+
+def print_mult_inverses(a: int, b: int):
     """Prints out the multiplicative inverse of a (mod b) and the multiplicative
     inverse of b (mod a).
     """
