@@ -1,5 +1,10 @@
-from collections.abc import Collection
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, TypeVar, Dict, Collection
+try:
+    import colorama
+    import blessings
+    nocolors = False
+except ModuleNotFoundError:
+    nocolors = True
 
 __all__ = [
     'extended_gcd', 'print_group_table', 'mult_inverse', 'print_mult_inverses'
@@ -62,18 +67,29 @@ def extended_gcd(x: int, y: int):
 T = TypeVar('T')
 def print_group_table(
         elements: Collection[T],
-        op: Callable[[T, T], T]
+        op: Callable[[T, T], T],
+        highlight_map: Dict[T, int] = {}
 ):
+    if not nocolors:
+        colorama.init()
+        term = blessings.Terminal()
     width = max(len(str(x)) for x in elements)
     print(f'{" ":{width}} |', end='')
+    def element_str(a, width):
+        s = f'{a:{width}}'
+        spaces = ' ' * (len(s) - len(str(a)))
+        if (not nocolors) and (a in highlight_map):
+            return spaces + term.color(highlight_map[a])(str(a))
+        else:
+            return s
     for a in elements:
-        print(f' {a:{width}} |', end='')
+        print(f' {element_str(a, width)} |', end='')
     print()
     for a in elements:
-        print(f'{a:{width}} |', end='')
+        print(f'{element_str(a, width)} |', end='')
         for b in elements:
             result = op(a, b)
-            print(f' {result:{width}} |', end='')
+            print(f' {element_str(result, width)} |', end='')
         print()
 
 
