@@ -1,10 +1,12 @@
-from typing import Any, Callable, TypeVar, Dict, Collection
+from typing import Any, Callable, TypeVar, Dict, Collection, Optional
 try:
     import colorama
     import blessings
     nocolors = False
+    TermType = blessings.Terminal
 except ModuleNotFoundError:
     nocolors = True
+    TermType = None
 
 __all__ = [
     'extended_gcd', 'print_group_table', 'mult_inverse', 'print_mult_inverses'
@@ -68,9 +70,10 @@ T = TypeVar('T')
 def print_group_table(
         elements: Collection[T],
         op: Callable[[T, T], T],
-        highlight_map: Dict[T, int] = {}
+        highlight_map: Dict[T, int] = {},
+        term: Optional[TermType] = None
 ):
-    if not nocolors:
+    if (not nocolors) and (term is None):
         colorama.init()
         term = blessings.Terminal()
     width = max(len(str(x)) for x in elements)
@@ -78,7 +81,7 @@ def print_group_table(
     def element_str(a, width):
         s = f'{a:{width}}'
         spaces = ' ' * (len(s) - len(str(a)))
-        if (not nocolors) and (a in highlight_map):
+        if (term is not None) and (a in highlight_map):
             return spaces + term.color(highlight_map[a])(str(a))
         else:
             return s
